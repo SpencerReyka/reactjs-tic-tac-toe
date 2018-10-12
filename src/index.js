@@ -16,7 +16,8 @@ function calculateWinner(squares) {
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+      console.log("output is {}", squares[a]);
+      return true;
     }
   }
   return null;
@@ -40,14 +41,19 @@ class Board extends React.Component {
   }
 
   handlesClick(x) {
+    var finished = false;
     const squares = this.state.squares.slice();
-    if(calculateWinner(squares) == true){
-      this.state = this.setUpBoard();
+    if(this.state.hasFinished){
+      this.setState(this.setUpBoard());
+      return;
     } else if(squares[x]!=null){
       return;
-    }
+    } 
     squares[x] = this.state.currState;
-    this.setState({squares: squares, currState: (this.state.currState === 'X') ? 'O' : 'X'});
+    if(calculateWinner(squares)){
+      finished = true;
+    } 
+    this.setState({squares: squares, currState: (this.state.currState === 'X') ? 'O' : 'X', hasFinished: finished});
   }
 
   renderSquare(i) {
@@ -63,16 +69,17 @@ class Board extends React.Component {
     return{
       squares: Array(9).fill(null),
       currState: 'X',
+      hasFinished: false,
     };
   }
 
   render() {
-    const winner = calculateWinner(this.state.squares);
+    const winner = this.state.hasFinished;
     let status;
     if (winner) {
       status = 'Winner: ' + winner + ', press anywhere to reset!';
     } else {
-      status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+      status = 'Next player: ' + this.state.currState;
     } 
 
     return (
